@@ -1,0 +1,39 @@
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  app_no_redis:
+    build: ./app_no_redis
+    ports:
+      - "8080:8080"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./app_no_redis:/app
+      
+  app_with_redis:
+    build:
+      context: ./app_with_redis
+    ports:
+      - "8081:8081"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - redis
+
+  postgres:
+    build: ./db
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  redis_data:
+  postgres_data:
